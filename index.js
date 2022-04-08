@@ -19,6 +19,8 @@ app.get('/', (req, res) => {
 
 let persons = new Map()
 io.on('connection', (socket) => {
+  console.log('connected!!!');
+
   // On connect, create a new entry for the person
   let uuid = randomUUID()
   let color = Math.floor(Math.random() * 255)
@@ -38,6 +40,7 @@ io.on('connection', (socket) => {
 
   // Person disconnects
   socket.on('disconnect', (data) => {
+    console.log('disconnected!');
     const person = persons.get(socket)
     persons.delete(socket)
     io.sockets.emit('remove', JSON.stringify(person))
