@@ -40,9 +40,9 @@ io.on('connection', (socket) => {
   socket.on('disconnect', (data) => {
     console.log('disconnected!')
 
-    io.sockets.emit('remove', JSON.stringify(socket.id))
-
     delete persons[socket.id]
+
+    io.sockets.emit('remove', JSON.stringify(persons))
   })
 })
 
