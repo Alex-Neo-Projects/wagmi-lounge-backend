@@ -17,33 +17,32 @@ app.get('/', (req, res) => {
   res.send('hello')
 })
 
-let persons = new Map()
+let persons = {}
 io.on('connection', (socket) => {
-  console.log('connected!!!');
+  console.log('connected!!!')
 
   // On connect, create a new entry for the person
   let uuid = randomUUID()
   let color = Math.floor(Math.random() * 255)
   const metadata = { uuid, color }
-  persons.set(socket, metadata)
+  persons[socket.id] = metadata
 
   // Get the cursor data and publishes to other clients
   socket.on('position', (data) => {
     const message = JSON.parse(data)
-    const metadata = persons.get(socket)
-    
-    message.sender = metadata.uuid
-    message.cursorColor = metadata.color
 
-    io.sockets.emit('position', JSON.stringify(message))
+    persons[socket.id] = { ...persons[socket.id], x: message.x, y: message.y }
+
+    io.sockets.emit('position', JSON.stringify(persons))
   })
 
   // Person disconnects
   socket.on('disconnect', (data) => {
-    console.log('disconnected!');
-    const person = persons.get(socket)
-    persons.delete(socket)
-    io.sockets.emit('remove', JSON.stringify(person))
+    console.log('disconnected!')
+
+    delete persons[socket.id]
+
+    io.sockets.emit('remove', JSON.stringify(persons))
   })
 })
 
